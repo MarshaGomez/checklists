@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    
+<!--    
+    ****************************************************************************
+    ****************************************************************************
+    CONSTANTS.
+    ****************************************************************************
+    ****************************************************************************
+-->
+    <!-- Home of the logs -->
+    <property name="LOG_HOME" value="/usr/local/tomcat/logs/" />
+    <!-- Log name -->
+    <property name="LOG" value="checklists"/>
+
+<!--    
+    ****************************************************************************
+    ****************************************************************************
+    CONSOLE APPENDER. An appender is how and where the logs will be saved.
+    The appenders are attached to a Logger (see below) so the Logger know what 
+    to with the logs. Also includes the pattern and rolling policies.
+    ****************************************************************************
+    ****************************************************************************
+-->
+    <appender name="CONSOLE" 
+              class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                [%d] [%thread] [%-5level] [%class.%method] - %msg%n%ex{20}
+            </pattern>
+        </encoder>
+    </appender>
+    
+<!--    
+    ****************************************************************************
+    ****************************************************************************
+    FILE APPENDER. An appender is how and where the logs will be saved.
+    The appenders are attached to a Logger (see below) so the Logger know what 
+    to with the logs. Also includes the pattern and rolling policies.
+    ****************************************************************************
+    ****************************************************************************
+-->
+    <appender name="FILE" 
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>
+            ${LOG_HOME}${LOG}.log
+        </file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>
+                ${LOG_HOME}${LOG}.%d{yyyy-MM-dd}.log
+            </fileNamePattern>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>
+                30
+            </maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                [%d] [%thread] [%-5level] [%class.%method] - %msg%n%ex{20}
+            </pattern>
+        </encoder>
+    </appender>
+
+<!--    
+    ****************************************************************************
+    ****************************************************************************
+    ROOT LOGGER. Set to OFF to override each logger for a specific package. By 
+    doing this we avoid a lot of the information that could be written, and we
+    don't need, by 3rd party libraries. This Logger has to appenders, by doing
+    this we ensure all the logs are being presented to the Tomcat console and 
+    also saved to a file that has a rolling policy by day.
+    ****************************************************************************
+    ****************************************************************************
+-->
+    <root level="OFF">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+    
+<!--    
+    ****************************************************************************
+    ****************************************************************************
+    
+    APPLICATION LOGGER. Must be set to DEBUG for DEV and INFO for PROD.
+    This Logger does not have an appeder, but it inherits the ones of ROOT, so
+    it will be saved to the CONSOLE and the FILE set in the ROOT logger.
+    
+    ****************************************************************************
+    ****************************************************************************
+-->
+    <logger name="org.invenio.checklists" level="DEBUG"/>
+<!--
+    ****************************************************************************
+    ****************************************************************************
+    FRAMEWORKS LOGGER. Everything should be commented out and just used when 
+    debbuging locally.
+    ****************************************************************************
+    ****************************************************************************
+-->
+    <!--<logger name="org.hibernate.SQL" level="DEBUG"/>-->
+    <!--<logger name="org.hibernate.type" level="DEBUG"/>-->
+    <!--<logger name="org.hibernate.transaction" level="DEBUG"/>-->
+    <!--<logger name="org.hibernate.jdbc" level="DEBUG"/>-->
+    <!--<logger name="org.springframework" level="DEBUG"/>-->
+    <!--<logger name="org.springframework.ldap" level="DEBUG"/>-->
+    
+</configuration>
