@@ -10,11 +10,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.invenio.checklists.dto.LoginForm;
+import org.invenio.checklists.json.ChkUserSerializer;
 import org.invenio.checklists.orm.ChkUser;
 import org.invenio.checklists.service.ChkUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -50,7 +52,12 @@ public class ChkUserAPI {
             
             userService.save(user);
             
-            return gson.toJson(user);
+            String json = new ChkUserSerializer()
+                    .addSimple()
+                    .addFull()
+                    .serialize(user);
+            
+            return json;
             
         } catch (Exception ex) {
             log.error("Error saving user {}. {}", user.toString(), ex.getMessage(), ex);
@@ -60,15 +67,29 @@ public class ChkUserAPI {
     
     @GET
     @Path("{id}")
+    @Produces(MediaType.APPLICATION_JSON)
     public String get(@PathParam("id") String id) {
         
-        ChkUser user = userService.get(id);
-        
-        if (user == null) {
-            return null;
+        try {
+            
+            ChkUser user = userService.get(id);
+
+            if (user == null) {
+                return null;
+            }
+            
+            String json = new ChkUserSerializer()
+                    .addSimple()
+                    .addFull()
+                    .serialize(user);
+            
+            return json;
+            
+        } catch (Exception ex) {
+            log.error("Error getting user {}. {}", id, ex.getMessage(), ex);
         }
         
-        return gson.toJson(user);
+        return null;
         
     }
     
@@ -98,13 +119,15 @@ public class ChkUserAPI {
     }
     
     @GET
-    @Path("/{id}/logout")
+    @Path("/logout")
     @Produces(MediaType.TEXT_PLAIN)
     public String logout(@PathParam("id") String id) {
         
+        ChkUser loggedUser = (ChkUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
         try {
             
-            userService.logout(id);
+            userService.logout(loggedUser.getId());
             
         } catch (Exception ex) {
             return "Error loggin out";
