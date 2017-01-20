@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,7 +27,7 @@ import org.hibernate.annotations.GenericGenerator;
 public class Checklist implements java.io.Serializable {
 
     private String id;
-    private ChkUser chkUser;
+    private ChkUser createdByUser;
     private String name;
     private Date dateCreated;
     private Date dateModified;
@@ -46,12 +47,12 @@ public class Checklist implements java.io.Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_user_id", nullable = false)
-    public ChkUser getChkUser() {
-        return this.chkUser;
+    public ChkUser getCreatedByUser() {
+        return this.createdByUser;
     }
 
-    public void setChkUser(ChkUser chkUser) {
-        this.chkUser = chkUser;
+    public void setCreatedByUser(ChkUser createdByUser) {
+        this.createdByUser = createdByUser;
     }
 
     @Column(name = "name", nullable = false, length = 128)
@@ -83,7 +84,7 @@ public class Checklist implements java.io.Serializable {
         this.dateModified = dateModified;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "checklist")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "checklist", cascade = CascadeType.ALL)
     public Set<Task> getTasks() {
         return this.tasks;
     }

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -114,7 +115,7 @@ public class Issue implements java.io.Serializable {
         this.resolved = resolved;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "issue")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "issue", cascade = CascadeType.ALL)
     public Set<Note> getNotes() {
         return this.notes;
     }

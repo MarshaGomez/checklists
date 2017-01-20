@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:ldap="http://www.springframework.org/schema/ldap"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+                           http://www.springframework.org/schema/security
+                           http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+
+<!--    
+    ****************************************************************************
+    SECURITY CONFIGURATION
+    ****************************************************************************
+--> 
+    <!-- Entry point for REST service. -->
+    <bean id="apiEntryPoint" class="org.invenio.checklists.security.AuthenticationEntryPointImpl" />
+    
+    <!-- Authentication manager. -->
+    <security:authentication-manager alias="authenticationManager"/>
+
+    <security:http pattern="/api/**" authentication-manager-ref="authenticationManager" entry-point-ref="apiEntryPoint" create-session="stateless">
+        <security:custom-filter ref="apiFilter" before="PRE_AUTH_FILTER" />
+    </security:http>
+        
+    <!-- Filter for REST services. -->
+    <bean id="apiFilter" class="org.invenio.checklists.security.RestTokenAuthenticationFilter">
+        <property name="authenticationManager" ref="authenticationManager" />
+        <property name="authenticationSuccessHandler" ref="apiAuthenticationSuccessHandler" />
+        <property name="authenticationFailureHandler" ref="apiAuthenticationFailureHandler" />
+        <property name="nonSecurePaths">
+            <list>
+                <value>/</value>
+                <value>/users/save</value>
+                <value>/users/login</value>
+            </list>
+        </property>
+   </bean>
+    
+    <!-- A handler for successful REST service authentication. -->
+    <bean id="apiAuthenticationSuccessHandler" class="org.invenio.checklists.security.RestAuthenticationSuccessHandler" />
+    <bean id="apiAuthenticationFailureHandler" class="org.invenio.checklists.security.RestAuthenticationFailureHandler" />
+        
+</beans>

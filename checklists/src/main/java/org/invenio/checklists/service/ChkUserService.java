@@ -11,7 +11,7 @@ import org.invenio.checklists.orm.ChkUser;
 public interface ChkUserService {
     
     /**
-     * Validates an user before save or update.
+     * Validates an user before save.
      * 
      * @param user
      * @throws Exception
@@ -32,8 +32,9 @@ public interface ChkUserService {
      * 
      * @param id
      * @return 
+     * @throws java.lang.Exception 
      */
-    public ChkUser get(String id);
+    public ChkUser get(String id) throws Exception;
     
     /**
      * Gets an user by its email. Returns null if not found.
@@ -62,25 +63,28 @@ public interface ChkUserService {
     /**
      * Updates an existing user. Makes a call to validate().
      * 
+     * @param id
      * @param user
      * @return 
      * @throws java.lang.Exception 
      */
-    public ChkUser update(ChkUser user) throws Exception;
+    public ChkUser update(String id, ChkUser user) throws Exception;
     
     /**
      * Deletes an user from the database.
      * 
      * @param id 
+     * @throws java.lang.Exception 
      */
-    public void delete(String id);
+    public void delete(String id) throws Exception;
     
     /**
      * Updates the token last access date of an user.
      * 
      * @param id 
+     * @throws java.lang.Exception 
      */
-    public void touch(String id);
+    public void touch(String id) throws Exception;
     
     /**
      * Verifies the user credentials and returns the user token.

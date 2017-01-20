@@ -67,16 +67,23 @@ public class ChkUserServiceImpl implements ChkUserService {
         
         validate(user);
         
+        Date date = new Date();
+        
+        //Add dates.
+        user.setDateCreated(date);
+        user.setDateModified(date);
+        
         userDAO.save(user);
         
         return user;
     }
 
     @Override
-    public ChkUser get(String id) {
+    public ChkUser get(String id) throws Exception {
         
         if (StringUtils.isBlank(id)) {
             log.error("Can not get a user by id without an id");
+            throw new Exception("Missing userId");
         }
         
         ChkUser user = userDAO.get(id);
@@ -93,17 +100,23 @@ public class ChkUserServiceImpl implements ChkUserService {
     }
 
     @Override
-    public ChkUser update(ChkUser user) throws Exception {
+    public ChkUser update(String id, ChkUser user) throws Exception {
         
-        validate(user);
+        ChkUser existingUser = get(id);
         
-        userDAO.update(user);
+        //Updateble fields.
+        existingUser.setFirstName(StringUtils.isNotBlank(user.getFirstName()) ? user.getFirstName() : existingUser.getFirstName());
+        existingUser.setLastName(StringUtils.isNotBlank(user.getLastName()) ? user.getLastName() : existingUser.getLastName());
+        existingUser.setCompany(StringUtils.isNotBlank(user.getCompany()) ? user.getCompany() : existingUser.getCompany());
+        existingUser.setDateModified(new Date());
         
-        return user;
+        userDAO.update(existingUser);
+        
+        return existingUser;
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(String id) throws Exception {
         
         if (StringUtils.isBlank(id)) {
             log.error("Can not delete a user without an id");
@@ -120,7 +133,7 @@ public class ChkUserServiceImpl implements ChkUserService {
     }
 
     @Override
-    public void touch(String id) {
+    public void touch(String id) throws Exception {
         
         if (StringUtils.isBlank(id)) {
             log.error("Can not touch a user without an id");
@@ -138,7 +151,8 @@ public class ChkUserServiceImpl implements ChkUserService {
         
         try {
             
-            update(user);
+            //Validation is not required. Calling DAO directly.
+            userDAO.update(user);
             
         } catch (Exception ex) {
             log.warn("Error updating the user last access token {}.", id, ex.getMessage());
@@ -167,11 +181,6 @@ public class ChkUserServiceImpl implements ChkUserService {
         }
         
         ChkUser user = userDAO.getByToken(token);
-        
-        if (user.getTokenExpired()) {
-            log.error("User token is expired {}", user.toString());
-            throw new Exception("Token is expired, please log in");
-        }
         
         return user;
     }
@@ -204,7 +213,8 @@ public class ChkUserServiceImpl implements ChkUserService {
         user.setTokenLastAccess(new Date());
         user.setToken(tokenGenerator.generateToken());
         
-        update(user);
+        //Validation is not required. Calling DAO directly.
+        userDAO.update(user);
         
         return user.getToken();
     }
@@ -229,7 +239,8 @@ public class ChkUserServiceImpl implements ChkUserService {
         user.setTokenLastAccess(null);
         user.setToken(null);
         
-        update(user);
+        //Validation is not required. Calling DAO directly.
+        userDAO.update(user);
     }
 
     @Override
@@ -256,7 +267,8 @@ public class ChkUserServiceImpl implements ChkUserService {
 
                 try {
 
-                    update(user);
+                    //Validation is not required. Calling DAO directly.
+                    userDAO.update(user);
 
                 } catch (Exception ex) {
                     log.error("Error expiring token of user {}. {}", user.toString(), ex.getMessage(), ex);

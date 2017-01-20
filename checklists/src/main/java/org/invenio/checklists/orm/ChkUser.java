@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -141,7 +142,7 @@ public class ChkUser implements java.io.Serializable {
         this.tokenExpired = tokenExpired;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "chkUser")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "createdByUser", cascade = CascadeType.ALL)
     public Set<Checklist> getChecklists() {
         return this.checklists;
     }
